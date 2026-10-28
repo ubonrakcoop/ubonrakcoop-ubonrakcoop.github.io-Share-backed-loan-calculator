@@ -328,7 +328,7 @@
           <label for="stockBalance">1) หุ้นคงเหลือ <small>(บาท)</small></label>
           <div class="input-wrapper">
             <i class="fa-solid fa-chart-pie"></i>
-            <input type="number" id="stockBalance" class="form-control" placeholder="0.00" min="0" step="any" required>
+            <input type="number" id="stockBalance" class="form-control" placeholder="0.00" min="0" step="any" required onkeydown="handleEnterKey(event)">
           </div>
         </div>
 
@@ -337,7 +337,7 @@
           <label for="emergencyLoan">2) หนี้เงินกู้ฉุกเฉินคงเหลือ <small>(บาท)</small></label>
           <div class="input-wrapper">
             <i class="fa-solid fa-bolt"></i>
-            <input type="number" id="emergencyLoan" class="form-control" placeholder="0.00" min="0" step="any" value="0" required>
+            <input type="number" id="emergencyLoan" class="form-control" placeholder="0.00" min="0" step="any" value="0" required onkeydown="handleEnterKey(event)">
           </div>
         </div>
 
@@ -346,7 +346,7 @@
           <label for="guaranteeBalance">3) หนี้ภาระค้ำประกันคงเหลือ <small>(บาท)</small></label>
           <div class="input-wrapper">
             <i class="fa-solid fa-hand-holding-dollar"></i>
-            <input type="number" id="guaranteeBalance" class="form-control" placeholder="0.00" min="0" step="any" value="0" required>
+            <input type="number" id="guaranteeBalance" class="form-control" placeholder="0.00" min="0" step="any" value="0" required onkeydown="handleEnterKey(event)">
           </div>
         </div>
 
@@ -355,7 +355,7 @@
           <label for="installments">4) งวดที่ต้องการผ่อนชำระ <small>(สูงสุด 84 งวด)</small></label>
           <div class="input-wrapper">
             <i class="fa-solid fa-clock"></i>
-            <input type="number" id="installments" class="form-control" placeholder="ระบุจำนวนงวด (เช่น 84)" min="1" max="84" value="84" required>
+            <input type="number" id="installments" class="form-control" placeholder="ระบุจำนวนงวด (เช่น 84)" min="1" max="84" value="84" required onkeydown="handleEnterKey(event)">
           </div>
         </div>
 
@@ -364,7 +364,7 @@
           <label for="salary">5) เงินเดือน <small>(บาท)</small></label>
           <div class="input-wrapper">
             <i class="fa-solid fa-money-bill-wave"></i>
-            <input type="number" id="salary" class="form-control" placeholder="0.00" min="0" step="any" required>
+            <input type="number" id="salary" class="form-control" placeholder="0.00" min="0" step="any" required onkeydown="handleEnterKey(event)">
           </div>
         </div>
 
@@ -373,7 +373,7 @@
           <label for="allowance">6) ค่าครองชีพ / ช่วยเหลือ <small>(บาท)</small></label>
           <div class="input-wrapper">
             <i class="fa-solid fa-hand-holding-heart"></i>
-            <input type="number" id="allowance" class="form-control" placeholder="0.00" min="0" step="any" value="0">
+            <input type="number" id="allowance" class="form-control" placeholder="0.00" min="0" step="any" value="0" onkeydown="handleEnterKey(event)">
           </div>
         </div>
 
@@ -382,7 +382,7 @@
           <label for="diligence">7) เบี้ยขยัน <small>(บาท)</small></label>
           <div class="input-wrapper">
             <i class="fa-solid fa-award"></i>
-            <input type="number" id="diligence" class="form-control" placeholder="0.00" min="0" step="any" value="0">
+            <input type="number" id="diligence" class="form-control" placeholder="0.00" min="0" step="any" value="0" onkeydown="handleEnterKey(event)">
           </div>
         </div>
 
@@ -438,14 +438,14 @@
             <label for="desiredLoan">1) จำนวนเงินที่ต้องการกู้ <small>(บาท)</small></label>
             <div class="input-wrapper">
               <i class="fa-solid fa-coins"></i>
-              <input type="number" id="desiredLoan" class="form-control" placeholder="ระบุยอดเงินที่ต้องการกู้" min="1" step="any">
+              <input type="number" id="desiredLoan" class="form-control" placeholder="ระบุยอดเงินที่ต้องการกู้" min="1" step="any" onkeydown="handleEnterKey(event)">
             </div>
           </div>
           <div class="form-group">
             <label for="desiredInstallments">2) จำนวนงวดที่ต้องการผ่อนชำระ</label>
             <div class="input-wrapper">
               <i class="fa-solid fa-clock"></i>
-              <input type="number" id="desiredInstallments" class="form-control" placeholder="ระบุจำนวนงวด" min="1" max="84" value="84">
+              <input type="number" id="desiredInstallments" class="form-control" placeholder="ระบุจำนวนงวด" min="1" max="84" value="84" onkeydown="handleEnterKey(event)">
             </div>
           </div>
         </div>
@@ -494,6 +494,27 @@
 <script>
   // Global Store for Income Data
   let calculatedContext = null;
+
+  /**
+   * ENTER KEY NAVIGATION: moves to the next field in the same group; the last field runs the calculation
+   */
+  function handleEnterKey(event) {
+    if (event.key !== 'Enter' || event.isComposing) return;
+    event.preventDefault();
+
+    const scope = event.target.closest('form, .custom-loan-box');
+    const fields = Array.from(scope.querySelectorAll('input'));
+    const next = fields[fields.indexOf(event.target) + 1];
+
+    if (next) {
+      next.focus();
+      next.select();
+    } else if (scope.tagName === 'FORM') {
+      scope.requestSubmit();
+    } else {
+      recalculateCustomLoan();
+    }
+  }
 
   function calculateShareLoan() {
     // 1. Get Form Inputs
